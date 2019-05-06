@@ -53,8 +53,13 @@ class TestDiscovery(unittest.TestCase):
         def restore_isdir():
             os.path.isdir = original_isdir
 
-        path_lists = [['test2.py', 'test1.py', 'not_a_test.py', 'test_dir',
-                       'test.foo', 'test-not-a-module.py', 'another_dir'],
+        path_lists = [  # Valid module and package names
+                      ['test2.py', 'test1.py', 'not_a_test.py', 'test_dir',
+                       # Invalid names
+                       'test.foo', 'test-not-a-module.py', 'not-a-package_dir',
+                       'another_dir'],
+                       # Valid names; test case tests that these work from inside
+                       # of a package directory
                       ['test4.py', 'test3.py', ]]
         os.listdir = lambda path: path_lists.pop(0)
         self.addCleanup(restore_listdir)
@@ -104,8 +109,13 @@ class TestDiscovery(unittest.TestCase):
         def restore_isdir():
             os.path.isdir = original_isdir
 
-        path_lists = [['測試2.py', '測試1.py', '不是測試.py', '測試_資料夾',
-                       '測試.付歐歐', '測試-不是-一個-模組.py', '另外的_資料夾'],
+        path_lists = [  # Valid module and package names
+                      ['測試2.py', '測試1.py', '不是測試.py', '測試_資料夾',
+                       # Invalid names
+                       '測試.付歐歐', '測試-不是-一個-模組.py',
+                       '測試-不是-一個-模組_資料夾', '另外的_資料夾'],
+                       # Valid names; test case tests that these work from inside
+                       # of a package directory
                       ['測試4.py', '測試3.py', ]]
         os.listdir = lambda path: path_lists.pop(0)
         self.addCleanup(restore_listdir)
@@ -116,7 +126,7 @@ class TestDiscovery(unittest.TestCase):
         self.addCleanup(restore_isdir)
 
         def isfile(path):
-            # another_dir is not a package and so shouldn't be recursed into
+            # '另外的_資料夾' is not a package and so shouldn't be recursed into
             return not path.endswith('資料夾') and not '另外的_資料夾' in path
         os.path.isfile = isfile
         self.addCleanup(restore_isfile)
