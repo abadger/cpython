@@ -431,11 +431,14 @@ class TestLoader(object):
                     # valid Python identifiers only
                     return None, False
             except AttributeError:
+                # Python 2 does not have isidentifier() and also has simpler
+                # rules for detecting identifiers that we can use a regex on
                 if not VALID_MODULE_NAME.match(basename):
                     # valid Python identifiers only
                     return None, False
             if not self._match_path(basename, full_path, pattern):
                 return None, False
+
             # if the test file matches, load it
             name = self._get_name_from_path(full_path)
             try:
@@ -472,6 +475,10 @@ class TestLoader(object):
             load_tests = None
             tests = None
             name = self._get_name_from_path(full_path)
+
+            if not name.isidentifier():
+                return None, False
+
             try:
                 package = self._get_module_from_name(name)
             except case.SkipTest as e:
